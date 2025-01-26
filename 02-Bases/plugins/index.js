@@ -1,9 +1,10 @@
 
-const {getId} = require('../../pluglins/get-id.plugin')
-const {getAge} = require('../../pluglins/get-age.plugin');
-
+const {getAge} = require('../plugins/get-age.plugin');
+const {getUUID} = require('../plugins/get-id.plugin');
+const {http} = require('../plugins/http-client.plugin');
 
 module.exports = {
     getAge,
-    getId,
+    getUUID,
+    http,
 };
