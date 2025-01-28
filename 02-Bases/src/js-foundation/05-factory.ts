@@ -6,10 +6,8 @@ interface buildMakePersonOptions {
 }
 
 interface Person {
-    id: string;
     name: string;
     birthdate: string;
-    age: number;
 }
 
 export const buildMakePerson = ({getUUID, getAge}: buildMakePersonOptions) => {
