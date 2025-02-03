@@ -40,8 +40,7 @@ export const yarg = yargs(hideBin(process.argv))
         return true;
     })
     .check( (argv, options) => {
-        const { l} = argv;
-        if (l < 0 ){
+        if (argv.l < 0 ){
             throw 'Error: limit must be a positive number';
         }
         return true;
