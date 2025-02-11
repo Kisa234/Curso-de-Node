@@ -1,55 +1,53 @@
-import path from "path";
-import { logDatasource } from "../../domain/datasources/log.datasource";
+import { LogDatasource } from "../../domain/datasources/log.datasource";
 import { logEntity, logLevel } from "../../domain/entities/log.entity";
 import  fs from 'fs';
 
 
-export class fileSystemDataSource implements logDatasource{
+export class fileSystemDataSource implements LogDatasource{
 
     private readonly logsPath = 'logs/';
-    private readonly allLogsPath = 'logs/logs-low.log';
-    private readonly mediumLogsPath = 'logs/logs-medium.log';
-    private readonly highLogsPath = 'logs/logs-high.log';
+    private readonly allLogsPath = 'logs/logs-low.txt';
+    private readonly mediumLogsPath = 'logs/logs-medium.txt';
+    private readonly highLogsPath = 'logs/logs-high.txt';
 
     
 
     constructor(){
-        this.createLogsFile();
+        this.createLogsFiles();
     }
 
-    private createLogsFile = ()=>{
-        
-        if (!fs.existsSync(this.logsPath)){
-            fs.mkdirSync(this.logsPath);
-        }   
-
-        [
-            this.allLogsPath,
-            this.mediumLogsPath,
-            this.highLogsPath
-        ].forEach(path =>{
-            if (!fs.existsSync(path)){
-                fs.mkdirSync(path);
-            }
-        })
-
-    }
-
-    async saveLog(newLog: logEntity): Promise<void> {
-        const logAsJson = `${JSON.stringify(newLog)} \n`;
-
-        fs.appendFileSync(this.allLogsPath, logAsJson);
-        if (newLog.level === logLevel.low) return;
-
-        if (newLog.level === logLevel.high){
-            fs.appendFileSync(this.highLogsPath ,logAsJson);
-        }else{
-            fs.appendFileSync(this.mediumLogsPath, logAsJson);
+    private createLogsFiles = () => {
+        if ( !fs.existsSync( this.logsPath ) ) {
+          fs.mkdirSync( this.logsPath );
         }
     
+        [
+          this.allLogsPath,
+          this.mediumLogsPath,
+          this.highLogsPath,
+        ].forEach( path => {
+          if ( fs.existsSync( path ) ) return;
+    
+          fs.writeFileSync( path, '' );
+        });
+      }
 
-    }
-
+      async saveLog( newLog: logEntity ): Promise<void> {
+    
+        const logAsJson = `${ JSON.stringify(newLog) }\n`;
+    
+        fs.appendFileSync( this.allLogsPath, logAsJson );
+    
+        if ( newLog.level === logLevel.low ) return;
+    
+        if ( newLog.level === logLevel.medium ) {
+          fs.appendFileSync( this.mediumLogsPath, logAsJson );
+        } else {
+          fs.appendFileSync( this.highLogsPath, logAsJson );
+        }
+    
+      }
+    
     private getLogsFromFile = (path:string): logEntity[] =>{
         const content = fs.readFileSync(path, 'utf-8');
         const logs = content.split('\n').map(
