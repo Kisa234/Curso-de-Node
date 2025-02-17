@@ -7,10 +7,21 @@ import { envs } from "../config/plugins/envs.plugins";
 import { EmailService } from './email/email-service';
 import { log } from "console";
 import { SendEmailLogs } from "../domain/use-cases/email/send-email-logs";
+import { MongoLogDatasource } from "../infraestructure/datasources/mongo-log.datasource";
+import { PostgresLogDatasource } from "../infraestructure/datasources/postgres-log.datasource";
+import { checkServiceMultiple } from "../domain/use-cases/checks/check-service-multiple";
+import fs from 'fs';
 
 
-const logRepository = new LogRepositoryImpl(
-   new fileSystemDataSource(),
+const fslogRepository = new LogRepositoryImpl(
+    new fileSystemDataSource(),
+);
+
+const MglogRepository = new LogRepositoryImpl(
+    new MongoLogDatasource(),
+);
+const PglogRepository = new LogRepositoryImpl(
+    new PostgresLogDatasource(),
 );
 
 export class Server{
@@ -22,10 +33,10 @@ export class Server{
 
         // // Mandar Email
 
-        new SendEmailLogs(
-            new EmailService(),
-            logRepository,
-        ).execute('renzonicolas3009@Gmail.com');
+        // new SendEmailLogs(
+        //     new EmailService(),
+        //     logRepository,
+        // ).execute('renzonicolas3009@Gmail.com');
 
 
 
@@ -37,22 +48,22 @@ export class Server{
 
         // Mandar Logs
 
-        // CronService.createJob(
-        //     '*/5 * * * * *',
-        //     () => {
-        //         const url = 'https://www.google.com';
-        //             new checkService(
-        //                 // () => console.log(`${url} is ok`),
-        //                 // (error) => console.log(error),
-        //                 undefined,
-        //                 undefined,
-        //                 logRepository,
-        //             ).execute(url);
+        CronService.createJob(
+            '*/5 * * * * *',
+            () => {
+                const url = 'https://www.google.com';
+                    new checkServiceMultiple(
+                        // () => console.log(`${url} is ok`),
+                        // (error) => console.log(error),
+                        undefined,
+                        undefined,
+                        [fslogRepository, MglogRepository, PglogRepository],
+                    ).execute(url);
     
-        //         // new checkService().execute('http://localhost:3000/');
-        //         // new checkService().execute('https://www.google.com');
-        //     }
-        // );
+                // new checkService().execute('http://localhost:3000/');
+                // new checkService().execute('https://www.google.com');
+            }
+        );
 
     };
 
