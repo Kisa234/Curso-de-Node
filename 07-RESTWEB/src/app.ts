@@ -1,7 +1,12 @@
-import http from 'http';
+import http2 from 'http2';
 import fs from 'fs';
 
-const server =  http.createServer((req, res) => {
+const server =  http2.createSecureServer({
+    
+    key: fs.readFileSync('../server.key'),
+    cert: fs.readFileSync('../server.crt'),
+
+    }, (req, res) => {
     console.log(req.url);
     // res.writeHead(200, {'Content-Type': 'text/html'});
     // res.write('<h1>Hello World</h1>');
