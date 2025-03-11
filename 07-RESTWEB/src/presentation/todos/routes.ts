@@ -1,12 +1,16 @@
 import { Router } from "express";
 import { TodosController } from "./controller";
-import { get } from 'env-var';
+import { TodoDatasourceImpl } from '../../infrastructure/datasource/todo.datasource.impl';
+import { TodoRespositoryImpl } from '../../infrastructure/repositories/todo.repository.impl';
 
 export class TodoRoutes{
 
     static get routes():Router{
         const router = Router();
-        const todosController = new TodosController();
+
+        const datasource = new TodoDatasourceImpl();
+        const todorepository = new TodoRespositoryImpl(datasource);
+        const todosController = new TodosController(todorepository);
 
         router.get('/', todosController.getTodos);
         router.get('/:id', todosController.getTodoById);
